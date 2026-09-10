@@ -396,58 +396,59 @@
     <!-- ================= 3. JAVASCRIPT LOGIC ================= -->
     <script>
         // --- 1. DATA INITIALIZATION ---
-        const MAX_STORAGE_LIMIT = 500;
+const MAX_STORAGE_LIMIT = 500;
 
-        let users = JSON.parse(localStorage.getItem('rinnet_users')) || [
-            { username: 'superadmin', password: 'admin123', role: 'superadmin' },
-            { username: 'admin1', password: '123', role: 'admin' },
-            { username: 'reseller1', password: '123', role: 'reseller' }
-        ];
+// Akun bawaan dasar
+const defaultUsers = [
+    { username: 'superadmin', password: 'admin123', role: 'superadmin' },
+    { username: 'admin1', password: '123', role: 'admin' },
+    { username: 'reseller1', password: '123', role: 'reseller' }
+];
 
-        let adminLogs = JSON.parse(localStorage.getItem('rinnet_admin_logs')) || [];
-        let resellerSales = JSON.parse(localStorage.getItem('rinnet_reseller_sales')) || [];
-        let currentUser = null;
-        let chartInstance = null;
+// Inisialisasi data dari LocalStorage, jika kosong gunakan default
+let users = JSON.parse(localStorage.getItem('rinnet_users'));
+if (!users || users.length === 0) {
+    users = defaultUsers;
+    localStorage.setItem('rinnet_users', JSON.stringify(users));
+}
 
-        // --- 2. REALTIME CLOCK ---
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('liveClock').textContent = now.toLocaleTimeString('id-ID') + ' WIB';
-            document.getElementById('liveDate').textContent = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
+let adminLogs = JSON.parse(localStorage.getItem('rinnet_admin_logs')) || [];
+let resellerSales = JSON.parse(localStorage.getItem('rinnet_reseller_sales')) || [];
+let currentUser = null;
+let chartInstance = null;
 
-        // --- 3. LOGIN SYSTEM (NO AUTO LOGIN) ---
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const u = document.getElementById('loginUser').value.trim();
-            const p = document.getElementById('loginPass').value.trim();
+// --- 3. LOGIN SYSTEM ---
+document.getElementById('loginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    // Ambil input dan bersihkan dari spasi berlebih
+    const u = document.getElementById('loginUser').value.trim();
+    const p = document.getElementById('loginPass').value.trim();
 
-            const found = users.find(x => x.username === u && x.password === p);
+    // Ambil data user paling update dari LocalStorage
+    const storedUsers = JSON.parse(localStorage.getItem('rinnet_users')) || users;
 
-            if (found) {
-                currentUser = found;
-                document.getElementById('displayUsername').textContent = found.username;
-                document.getElementById('roleBadge').textContent = found.role.toUpperCase();
+    // Cek kecocokan (case-insensitive untuk username)
+    const found = storedUsers.find(x => x.username.toLowerCase() === u.toLowerCase() && x.password === p);
 
-                document.getElementById('loginPage').classList.add('hidden');
-                document.getElementById('appContainer').classList.remove('hidden');
+    if (found) {
+        currentUser = found;
+        document.getElementById('displayUsername').textContent = found.username;
+        document.getElementById('roleBadge').textContent = found.role.toUpperCase();
 
-                // Apply Access Rights
-                applyRolePermissions(found.role);
-                refreshAllData();
-            } else {
-                document.getElementById('loginError').classList.remove('hidden');
-            }
-        });
+        document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('appContainer').classList.remove('hidden');
 
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            currentUser = null;
-            document.getElementById('appContainer').classList.add('hidden');
-            document.getElementById('loginPage').classList.remove('hidden');
-            document.getElementById('loginForm').reset();
-        });
+        // Sembunyikan pesan error jika sebelumnya ada
+        document.getElementById('loginError').classList.add('hidden');
+
+        // Terapkan Hak Akses
+        applyRolePermissions(found.role);
+        refreshAllData();
+    } else {
+        document.getElementById('loginError').classList.remove('hidden');
+    }
+});
 
         // --- 4. ROLE PERMISSIONS ---
         function applyRolePermissions(role) {
