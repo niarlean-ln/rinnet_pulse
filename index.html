@@ -3,173 +3,450 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rinnet Pulse</title>
+    <title>Rinnet Pulse - Platform Manajemen Voucher & Reseller</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icon -->
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS (XLSX) untuk Ekspor & Impor Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
-        .sidebar-overlay {
-            background-color: rgba(0, 0, 0, 0.5);
-            transition: opacity 0.3s ease;
-        }
+        .sidebar-overlay { background-color: rgba(0, 0, 0, 0.5); transition: opacity 0.3s ease; }
+        .page-section { display: none; }
+        .page-section.active { display: block; }
     </style>
 </head>
 <body class="bg-slate-100 font-sans antialiased text-slate-800">
 
-    <!-- Header Navbar -->
-    <header class="bg-indigo-900 text-white sticky top-0 z-30 shadow-md">
-        <div class="flex items-center justify-between px-4 py-3">
-            <div class="flex items-center gap-3">
-                <!-- Hamburger Button (Mobile) -->
-                <button id="toggleMenuBtn" class="md:hidden text-2xl focus:outline-none text-slate-200">
-                    <i class="fa-solid fa-bars"></i>
-                </button>
-                <!-- Logo Rinnet Pulse dengan Icon Pulsa/Listrik -->
-                <div class="flex items-center gap-2">
-                    <div class="bg-amber-400 text-indigo-950 p-2 rounded-lg flex items-center justify-center font-bold shadow-sm">
-                        <i class="fa-solid fa-bolt-lightning text-lg"></i>
-                    </div>
-                    <span class="text-xl font-bold tracking-wide">Rinnet<span class="text-amber-400">Pulse</span></span>
+    <!-- ================= 1. HALAMAN LOGIN ================= -->
+    <div id="loginPage" class="fixed inset-0 z-50 bg-slate-900 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 md:p-8 border border-slate-700">
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center bg-amber-400 text-indigo-950 p-3 rounded-2xl mb-3 shadow-md">
+                    <i class="fa-solid fa-bolt-lightning text-3xl"></i>
                 </div>
+                <h1 class="text-2xl font-bold text-slate-900">Rinnet<span class="text-amber-500">Pulse</span></h1>
+                <p class="text-xs text-slate-500 mt-1">Sistem Manajemen Voucher, Paket & Reseller</p>
             </div>
 
-            <!-- Profile & Login Info -->
-            <div class="flex items-center gap-3">
-                <span id="userStatusBadge" class="hidden md:inline-block bg-emerald-500 text-white text-xs px-2.5 py-1 rounded-full font-medium">
-                    <i class="fa-solid fa-shield-halved mr-1"></i> Superadmin
-                </span>
-                <div class="text-right text-xs">
-                    <p class="font-semibold text-slate-100" id="currentUsername">Superadmin</p>
-                    <p class="text-slate-300" id="deviceInfo">HP Android (Aktif)</p>
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Username / ID User</label>
+                    <input type="text" id="loginUser" value="Superadmin" required class="w-full text-sm border border-slate-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                 </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Password</label>
+                    <input type="password" id="loginPass" value="admin123" required class="w-full text-sm border border-slate-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Akses Sebagai Role</label>
+                    <select id="loginRole" class="w-full text-sm border border-slate-300 rounded-lg p-3 bg-slate-50 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <option value="superadmin">Superadmin (Akses Penuh)</option>
+                        <option value="admin">Admin Internal (Kelola Data & Voucher)</option>
+                        <option value="reseller">Reseller (Input Penjualan & Saldo)</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm py-3 rounded-lg shadow-md transition">
+                    <i class="fa-solid fa-right-to-bracket mr-2"></i> Masuk Aplikasi
+                </button>
+            </form>
+            <div class="mt-4 text-center">
+                <p class="text-[11px] text-slate-400">Sesi Login Aman • Terdeteksi Otomatis Perangkat HP / PC</p>
             </div>
         </div>
-    </header>
+    </div>
 
-    <!-- Overlay untuk Mobile Sidebar (Fix Bug Stuck) -->
-    <div id="sidebarOverlay" class="fixed inset-0 sidebar-overlay z-40 hidden opacity-0"></div>
-
-    <!-- Main Container -->
-    <div class="flex min-h-[calc(100vh-57px)]">
+    <!-- ================= 2. DASHBOARD / UTAMA ================= -->
+    <div id="appContainer" class="hidden min-h-screen flex flex-col">
         
-        <!-- Sidebar Navigation -->
-        <aside id="sidebar" class="fixed md:static inset-y-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col justify-between">
-            <div>
-                <!-- Header Sidebar Mobile (Tombol Close) -->
-                <div class="flex items-center justify-between p-4 md:hidden border-b border-slate-800">
-                    <span class="font-bold text-white">Menu Navigasi</span>
-                    <button id="closeMenuBtn" class="text-slate-400 hover:text-white text-xl">
+        <!-- Header / Navbar -->
+        <header class="bg-indigo-900 text-white sticky top-0 z-30 shadow-md">
+            <div class="flex items-center justify-between px-4 py-3">
+                <div class="flex items-center gap-3">
+                    <button id="toggleMenuBtn" class="md:hidden text-2xl focus:outline-none text-slate-200">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="flex items-center gap-2">
+                        <div class="bg-amber-400 text-indigo-950 p-2 rounded-lg font-bold flex items-center justify-center">
+                            <i class="fa-solid fa-bolt-lightning text-lg"></i>
+                        </div>
+                        <span class="text-xl font-bold tracking-wide">Rinnet<span class="text-amber-400">Pulse</span></span>
+                    </div>
+                </div>
+
+                <!-- Live Date Time & Profile -->
+                <div class="flex items-center gap-4">
+                    <div class="hidden lg:block text-right text-xs border-r border-indigo-700 pr-4">
+                        <p id="liveClock" class="font-bold text-amber-300 text-sm">00:00:00 WIB</p>
+                        <p id="liveDate" class="text-slate-300">1 Januari 2026</p>
+                    </div>
+                    <div class="text-right text-xs">
+                        <span id="roleBadge" class="bg-emerald-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">Superadmin</span>
+                        <p class="font-semibold text-slate-100 mt-0.5" id="displayUsername">LDhito</p>
+                        <p class="text-slate-300 text-[10px]" id="deviceInfo">HP Android (Aktif)</p>
+                    </div>
+                    <button id="logoutBtn" title="Keluar" class="bg-rose-600 hover:bg-rose-700 text-white p-2 rounded-lg text-xs transition">
+                        <i class="fa-solid fa-power-off"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar Overlay (Mobile Fix Stuck) -->
+        <div id="sidebarOverlay" class="fixed inset-0 sidebar-overlay z-40 hidden opacity-0"></div>
+
+        <!-- Layout Body -->
+        <div class="flex flex-1">
+            <!-- Sidebar -->
+            <aside id="sidebar" class="fixed md:static inset-y-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between p-4 md:hidden border-b border-slate-800">
+                        <span class="font-bold text-white">Menu Navigasi</span>
+                        <button id="closeMenuBtn" class="text-slate-400 hover:text-white text-xl">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+
+                    <nav class="p-3 space-y-1">
+                        <button onclick="switchTab('dashboardPage')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-indigo-600 text-white font-medium text-left">
+                            <i class="fa-solid fa-chart-line w-5"></i> Dashboard
+                        </button>
+                        <button onclick="switchTab('resellerPage')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition text-left">
+                            <i class="fa-solid fa-users w-5"></i> Data Reseller & Voucher
+                        </button>
+                        <button onclick="switchTab('inputResellerPage')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition text-left">
+                            <i class="fa-solid fa-cart-plus w-5"></i> Input Khusus Reseller
+                        </button>
+                        <button onclick="switchTab('kelolaUserPage')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition text-left">
+                            <i class="fa-solid fa-user-gear w-5"></i> Kelola User (Superadmin)
+                        </button>
+                    </nav>
+                </div>
+
+                <div class="p-4 border-t border-slate-800 text-xs text-slate-400">
+                    <p class="font-medium text-slate-300"><i class="fa-solid fa-mobile-screen mr-1"></i> Perangkat Terhubung:</p>
+                    <p id="sessionDeviceText">Sesi login terverifikasi</p>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="flex-1 p-4 md:p-6 bg-slate-100 overflow-y-auto">
+
+                <!-- Alert Notifikasi Sesi Aktif -->
+                <div id="loginAlert" class="mb-6 bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg shadow-sm flex items-start justify-between">
+                    <div class="flex items-start gap-3">
+                        <i class="fa-solid fa-shield-cat text-amber-500 text-xl mt-0.5"></i>
+                        <div>
+                            <h4 class="font-bold text-amber-800 text-sm">Notifikasi Sesi Login</h4>
+                            <p class="text-xs text-amber-700 mt-0.5" id="alertDetail">Login berhasil. Sesi terhubung aman dari perangkat HP/PC Anda.</p>
+                        </div>
+                    </div>
+                    <button onclick="document.getElementById('loginAlert').remove()" class="text-amber-500 hover:text-amber-700">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
 
-                <!-- Menu Items -->
-                <nav class="p-3 space-y-1">
-                    <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg bg-indigo-600 text-white font-medium">
-                        <i class="fa-solid fa-chart-line w-5"></i> Dashboard
-                    </a>
-                    <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition">
-                        <i class="fa-solid fa-users w-5"></i> Reseller
-                    </a>
-                    <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition">
-                        <i class="fa-solid fa-user-gear w-5"></i> Kelola User
-                    </a>
-                    <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition">
-                        <i class="fa-solid fa-id-card w-5"></i> Profil Saya
-                    </a>
-                </nav>
-            </div>
-
-            <!-- Device Session Info di Sidebar -->
-            <div class="p-4 border-t border-slate-800 text-xs text-slate-400">
-                <p class="font-medium text-slate-300 mb-1"><i class="fa-solid fa-mobile-screen mr-1"></i> Perangkat Terhubung:</p>
-                <p id="sessionDeviceText">Memuat perangkat...</p>
-            </div>
-        </aside>
-
-        <!-- Content Area -->
-        <main class="flex-1 p-4 md:p-6 space-y-6">
-
-            <!-- Notifikasi Perangkat Baru / Sesi Aktif -->
-            <div id="loginAlert" class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg shadow-sm flex items-start justify-between">
-                <div class="flex items-start gap-3">
-                    <i class="fa-solid fa-circle-info text-amber-500 text-xl mt-0.5"></i>
-                    <div>
-                        <h4 class="font-bold text-amber-800 text-sm">Notifikasi Sesi Akun</h4>
-                        <p class="text-xs text-amber-700 mt-0.5" id="alertDetail">Akun login aktif di HP Android (Browser Chrome). Waktu: Baru Saja.</p>
+                <!-- SECTION 1: DASHBOARD (STATISTIK & GRAFIK) -->
+                <section id="dashboardPage" class="page-section active space-y-6">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-900">Dashboard Ringkasan</h2>
+                            <p class="text-xs text-slate-500">Laporan realtime penjualan voucher & paket bulanan reseller.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1.5 shadow-sm">
+                                <i class="fa-solid fa-file-excel text-sm"></i> Ekspor Excel
+                            </button>
+                            <label class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1.5 shadow-sm cursor-pointer">
+                                <i class="fa-solid fa-file-import text-sm"></i> Impor Excel/CSV
+                                <input type="file" id="importFile" accept=".xlsx, .xls, .csv" onchange="importFromExcel(event)" class="hidden">
+                            </label>
+                        </div>
                     </div>
-                </div>
-                <button onclick="document.getElementById('loginAlert').remove()" class="text-amber-500 hover:text-amber-700">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
 
-            <!-- Fitur Superadmin: Edit Username & Password -->
-            <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-                <div class="flex items-center justify-between mb-4 border-b pb-3">
-                    <div>
-                        <h2 class="text-lg font-bold text-slate-900"><i class="fa-solid fa-user-pen text-indigo-600 mr-2"></i>Kelola Akun & User (Superadmin)</h2>
-                        <p class="text-xs text-slate-500">Edit username/password akun sendiri atau user/reseller tanpa hapus data.</p>
+                    <!-- Cards Stats -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <p class="text-xs font-medium text-slate-500">Total Transaksi</p>
+                            <h3 class="text-xl font-bold text-slate-800 mt-1" id="statTotalTx">128 Trx</h3>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <p class="text-xs font-medium text-slate-500">Omzet Voucher</p>
+                            <h3 class="text-xl font-bold text-indigo-600 mt-1" id="statOmzetVoucher">Rp 450.000</h3>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <p class="text-xs font-medium text-slate-500">Omzet Paketan HP</p>
+                            <h3 class="text-xl font-bold text-emerald-600 mt-1" id="statOmzetHP">Rp 1.250.000</h3>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <p class="text-xs font-medium text-slate-500">Total Reseller Aktif</p>
+                            <h3 class="text-xl font-bold text-amber-600 mt-1" id="statResellerCount">12 Orang</h3>
+                        </div>
                     </div>
-                </div>
 
-                <div class="grid md:grid-cols-2 gap-6">
-                    <!-- Form Edit Akun -->
-                    <form id="editUserForm" class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Akun yang Diedit</label>
-                            <select id="selectTargetUser" class="w-full text-sm border-slate-300 border rounded-lg p-2.5 bg-slate-50 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                                <option value="superadmin">Superadmin (Akun Sendiri)</option>
-                                <option value="reseller_1">Reseller 1 (Budi Pulsa)</option>
-                                <option value="reseller_2">Reseller 2 (Siti Cell)</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Username Baru</label>
-                            <input type="text" id="inputUsername" value="Superadmin" required class="w-full text-sm border-slate-300 border rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Password Baru</label>
-                            <input type="password" id="inputPassword" placeholder="Masukkan password baru" required class="w-full text-sm border-slate-300 border rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                        </div>
-
-                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm py-2.5 rounded-lg transition shadow-sm">
-                            <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Perubahan
-                        </button>
-                    </form>
-
-                    <!-- Daftar Perangkat Aktif (Fitur Tambahan) -->
-                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                        <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
-                            <i class="fa-solid fa-shield-cat text-emerald-600"></i> Perangkat Login Aktif
+                    <!-- Grafik Laporan Realtime -->
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-column text-indigo-600"></i> Laporan Grafik Penjualan
                         </h3>
-                        <div class="space-y-3 text-xs">
-                            <div class="flex items-center justify-between bg-white p-3 rounded-lg border">
+                        <div class="h-64">
+                            <canvas id="salesChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 2: INPUT DATA TIM INTERNAL & RESELLER -->
+                <section id="resellerPage" class="page-section space-y-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900">Kelola Data Tim Internal & Voucher Reseller</h2>
+                        <p class="text-xs text-slate-500">Input voucher harian/mingguan dan paket bulanan (1-5 HP range Rp 50.000 s/d Rp 200.000).</p>
+                    </div>
+
+                    <div class="grid lg:grid-cols-3 gap-6">
+                        <!-- Form Input Tim Internal -->
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                            <h3 class="text-sm font-bold text-slate-800 border-b pb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-plus-circle text-indigo-600"></i> Form Input Data Baru
+                            </h3>
+                            <form id="voucherForm" class="space-y-3">
                                 <div>
-                                    <p class="font-semibold text-slate-700" id="activeDeviceName">Mobile Browser (HP)</p>
-                                    <p class="text-slate-400">IP: 180.252.xx.xx • Aktif sekarang</p>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Reseller / ID</label>
+                                    <input type="text" id="inputResellerName" placeholder="Contoh: Budi Cell" required class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
                                 </div>
-                                <span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">Perangkat Ini</span>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Kategori Produk</label>
+                                    <select id="inputCategory" onchange="togglePackageOptions()" class="w-full text-xs border border-slate-300 rounded-lg p-2.5 bg-slate-50 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                                        <option value="voucher">Voucher Harian / Mingguan</option>
+                                        <option value="bulanan">Paket Bulanan HP (1-5 HP)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Opsi Voucher -->
+                                <div id="voucherOptions">
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Pilihan Nominal Voucher</label>
+                                    <select id="inputVoucherVal" class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                                        <option value="2000">Voucher Rp 2.000</option>
+                                        <option value="3000">Voucher Rp 3.000</option>
+                                        <option value="4000">Voucher Rp 4.000</option>
+                                        <option value="5000">Voucher Rp 5.000</option>
+                                        <option value="6000">Voucher Rp 6.000</option>
+                                        <option value="25000">Voucher Mingguan Rp 25.000</option>
+                                    </select>
+                                </div>
+
+                                <!-- Opsi Paketan HP (Hidden By Default) -->
+                                <div id="hpOptions" class="hidden space-y-3">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-600 mb-1">Kapasitas HP (Bulanan)</label>
+                                        <select id="inputHpCount" class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                                            <option value="1 HP">1 HP</option>
+                                            <option value="2 HP">2 HP</option>
+                                            <option value="3 HP">3 HP</option>
+                                            <option value="4 HP">4 HP</option>
+                                            <option value="5 HP">5 HP</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-600 mb-1">Harga Paketan (Rp 50.000 - Rp 200.000)</label>
+                                        <input type="number" id="inputHpPrice" min="50000" max="200000" value="50000" step="5000" class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Jumlah / Qty</label>
+                                    <input type="number" id="inputQty" value="1" min="1" class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                                </div>
+
+                                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs py-2.5 rounded-lg shadow-sm transition">
+                                    <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Data Transaksi
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Tabel Rekapan Data -->
+                        <div class="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                            <div class="flex items-center justify-between border-b pb-2">
+                                <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                                    <i class="fa-solid fa-list-check text-indigo-600"></i> Rekapan Data Penjualan
+                                </h3>
+                                <button onclick="clearAllData()" class="text-rose-600 hover:text-rose-800 text-xs font-medium">
+                                    <i class="fa-solid fa-trash-can mr-1"></i> Reset Data
+                                </button>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs border-collapse">
+                                    <thead>
+                                        <tr class="bg-slate-100 text-slate-600 font-bold border-b">
+                                            <th class="p-2.5">Tanggal</th>
+                                            <th class="p-2.5">Reseller</th>
+                                            <th class="p-2.5">Kategori</th>
+                                            <th class="p-2.5">Detail Produk</th>
+                                            <th class="p-2.5">Qty</th>
+                                            <th class="p-2.5">Total Harga</th>
+                                            <th class="p-2.5 text-center">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="transactionTableBody" class="divide-y divide-slate-100">
+                                        <!-- Dynamic Data -->
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
 
-        </main>
+                <!-- SECTION 3: INPUT KHUSUS RESELLER -->
+                <section id="inputResellerPage" class="page-section space-y-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900">Portal Input Khusus Reseller</h2>
+                        <p class="text-xs text-slate-500">Halaman cepat untuk reseller melaporkan penjualan atau klaim stok voucher.</p>
+                    </div>
+
+                    <div class="max-w-xl bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                        <form id="resellerSelfForm" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Toko / ID Reseller</label>
+                                <input type="text" id="resellerSelfName" value="Reseller_Budi" readonly class="w-full text-xs bg-slate-100 border border-slate-300 rounded-lg p-2.5 font-bold text-slate-700">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Jenis Voucher Yang Dijual</label>
+                                <select id="resellerSelfVoucher" class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                                    <option value="2000">Voucher 2000</option>
+                                    <option value="3000">Voucher 3000</option>
+                                    <option value="4000">Voucher 4000</option>
+                                    <option value="5000">Voucher 5000</option>
+                                    <option value="6000">Voucher 6000</option>
+                                    <option value="25000">Voucher Mingguan 25000</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Jumlah Lembar Terjual</label>
+                                <input type="number" id="resellerSelfQty" value="5" min="1" class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                            </div>
+                            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-3 rounded-lg shadow-sm transition">
+                                <i class="fa-solid fa-paper-plane mr-1"></i> Kirim Laporan Penjualan
+                            </button>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- SECTION 4: KELOLA USER (SUPERADMIN) -->
+                <section id="kelolaUserPage" class="page-section space-y-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900">Kelola Akun & User (Superadmin)</h2>
+                        <p class="text-xs text-slate-500">Edit username atau password akun sendiri maupun user/reseller tanpa hapus data.</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                            <form id="editUserForm" class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Akun yang Diedit</label>
+                                    <select id="selectTargetUser" class="w-full text-xs border border-slate-300 rounded-lg p-2.5 bg-slate-50 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                                        <option value="superadmin">Superadmin (Akun Utama)</option>
+                                        <option value="admin_1">Admin Internal 1</option>
+                                        <option value="reseller_1">Reseller 1 (Budi Cell)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Username Baru</label>
+                                    <input type="text" id="inputUsername" value="LDhito" required class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Password Baru</label>
+                                    <input type="password" id="inputPassword" placeholder="Masukkan password baru" required class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                                </div>
+                                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs py-2.5 rounded-lg shadow-sm transition">
+                                    <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Perubahan Akun
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+                            <h3 class="text-xs font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-laptop-code text-indigo-600"></i> Status Sesi User Aktif
+                            </h3>
+                            <div class="bg-white p-3 rounded-lg border text-xs space-y-1">
+                                <p class="font-bold text-slate-800" id="activeUserLabel">LDhito (Superadmin)</p>
+                                <p class="text-slate-500 text-[11px]" id="activeDeviceLabel">Laptop / PC • Chrome Browser</p>
+                                <span class="inline-block bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold mt-1">Terhubung & Safe</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
     </div>
 
-    <!-- JavaScript logic -->
+    <!-- ================= 3. JAVASCRIPT LOGIC ================= -->
     <script>
-        // --- 1. Fix Mobile Menu / Sidebar Toggle (Anti Stuck) ---
+        // --- DATA STORE INITIALIZATION ---
+        let transactions = JSON.parse(localStorage.getItem('rinnet_tx')) || [
+            { id: 1, date: '2026-09-10', reseller: 'Budi Cell', category: 'voucher', detail: 'Voucher 5000', qty: 10, total: 50000 },
+            { id: 2, date: '2026-09-10', reseller: 'Siti Pulsa', category: 'bulanan', detail: '3 HP (Rp 120.000)', qty: 1, total: 120000 }
+        ];
+
+        let currentUser = { name: 'LDhito', role: 'superadmin' };
+        let salesChartInstance = null;
+
+        // --- REALTIME CLOCK & DATE ---
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('id-ID') + ' WIB';
+            const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+            const dateStr = now.toLocaleDateString('id-ID', dateOptions);
+
+            const liveClock = document.getElementById('liveClock');
+            const liveDate = document.getElementById('liveDate');
+            if(liveClock) liveClock.textContent = timeStr;
+            if(liveDate) liveDate.textContent = dateStr;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // --- DEVICE DETECTION ---
+        function detectDeviceType() {
+            const ua = navigator.userAgent;
+            if (/android/i.test(ua)) return "HP Android";
+            if (/iPhone|iPad|iPod/i.test(ua)) return "iPhone / iOS";
+            return "Laptop / PC";
+        }
+
+        // --- LOGIN & ROLE LOGIC ---
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const user = document.getElementById('loginUser').value;
+            const role = document.getElementById('loginRole').value;
+            
+            currentUser.name = user;
+            currentUser.role = role;
+
+            document.getElementById('displayUsername').textContent = user;
+            document.getElementById('roleBadge').textContent = role.toUpperCase();
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('appContainer').classList.remove('hidden');
+
+            const dev = detectDeviceType();
+            document.getElementById('deviceInfo').textContent = `${dev} (Aktif)`;
+            document.getElementById('sessionDeviceText').textContent = `${dev} • Browser Active`;
+
+            initDashboard();
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            document.getElementById('appContainer').classList.add('hidden');
+            document.getElementById('loginPage').classList.remove('hidden');
+        });
+
+        // --- NAVIGATION & SIDEBAR FIX (HP ANTI STUCK) ---
         const toggleMenuBtn = document.getElementById('toggleMenuBtn');
         const closeMenuBtn = document.getElementById('closeMenuBtn');
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
-        const navItems = document.querySelectorAll('.nav-item');
 
         function openSidebar() {
             sidebar.classList.remove('-translate-x-full');
@@ -183,58 +460,181 @@
             setTimeout(() => sidebarOverlay.classList.add('hidden'), 300);
         }
 
-        toggleMenuBtn.addEventListener('click', openSidebar);
-        closeMenuBtn.addEventListener('click', closeSidebar);
-        sidebarOverlay.addEventListener('click', closeSidebar);
+        if(toggleMenuBtn) toggleMenuBtn.addEventListener('click', openSidebar);
+        if(closeMenuBtn) closeMenuBtn.addEventListener('click', closeSidebar);
+        if(sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
 
-        // Otomatis tutup sidebar saat menu diklik (di HP)
-        navItems.forEach(item => {
-            item.addEventListener('click', () => {
-                if (window.innerWidth < 768) closeSidebar();
-            });
-        });
-
-        // --- 2. Deteksi Perangkat HP / Desktop ---
-        function detectDevice() {
-            const userAgent = navigator.userAgent;
-            let deviceType = "Laptop / PC";
-            
-            if (/android/i.test(userAgent)) deviceType = "HP Android";
-            else if (/iPhone|iPad|iPod/i.test(userAgent)) deviceType = "iPhone / iOS";
-
-            document.getElementById('deviceInfo').textContent = `${deviceType} (Aktif)`;
-            document.getElementById('sessionDeviceText').textContent = `${deviceType} • Browser Chrome`;
-            document.getElementById('activeDeviceName').textContent = deviceType;
-            document.getElementById('alertDetail').textContent = `Akun login aktif di ${deviceType}. Sesi ini telah diverifikasi aman.`;
+        function switchTab(pageId) {
+            document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            if (window.innerWidth < 768) closeSidebar();
+            if (pageId === 'dashboardPage') renderChart();
         }
-        detectDevice();
 
-        // --- 3. Logika Edit Username / Password (Superadmin) ---
-        const editUserForm = document.getElementById('editUserForm');
-        const selectTargetUser = document.getElementById('selectTargetUser');
-        const inputUsername = document.getElementById('inputUsername');
-        const currentUsername = document.getElementById('currentUsername');
+        // --- FORM LOGIC (PACKAGE SELECTION) ---
+        function togglePackageOptions() {
+            const cat = document.getElementById('inputCategory').value;
+            if (cat === 'bulanan') {
+                document.getElementById('voucherOptions').classList.add('hidden');
+                document.getElementById('hpOptions').classList.remove('hidden');
+            } else {
+                document.getElementById('voucherOptions').classList.remove('hidden');
+                document.getElementById('hpOptions').classList.add('hidden');
+            }
+        }
 
-        // Ganti data input sesuai user yang dipilih
-        selectTargetUser.addEventListener('change', (e) => {
-            const val = e.target.value;
-            if (val === 'superadmin') inputUsername.value = currentUsername.textContent;
-            else if (val === 'reseller_1') inputUsername.value = 'Budi Pulsa';
-            else if (val === 'reseller_2') inputUsername.value = 'Siti Cell';
+        // --- RENDER TABLE & RECAP ---
+        function renderTable() {
+            const tbody = document.getElementById('transactionTableBody');
+            tbody.innerHTML = '';
+
+            let totalVoucher = 0;
+            let totalHP = 0;
+
+            transactions.forEach((item, index) => {
+                if(item.category === 'voucher') totalVoucher += item.total;
+                else totalHP += item.total;
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 border-b border-slate-100';
+                tr.innerHTML = `
+                    <td class="p-2.5">${item.date}</td>
+                    <td class="p-2.5 font-semibold text-slate-700">${item.reseller}</td>
+                    <td class="p-2.5"><span class="px-2 py-0.5 text-[10px] font-bold rounded ${item.category === 'voucher' ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'}">${item.category.toUpperCase()}</span></td>
+                    <td class="p-2.5">${item.detail}</td>
+                    <td class="p-2.5 font-bold">${item.qty}</td>
+                    <td class="p-2.5 font-bold text-slate-800">Rp ${item.total.toLocaleString('id-ID')}</td>
+                    <td class="p-2.5 text-center">
+                        <button onclick="deleteTx(${index})" class="text-rose-500 hover:text-rose-700 text-xs">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('statTotalTx').textContent = `${transactions.length} Trx`;
+            document.getElementById('statOmzetVoucher').textContent = `Rp ${totalVoucher.toLocaleString('id-ID')}`;
+            document.getElementById('statOmzetHP').textContent = `Rp ${totalHP.toLocaleString('id-ID')}`;
+            localStorage.setItem('rinnet_tx', JSON.stringify(transactions));
+        }
+
+        document.getElementById('voucherForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const reseller = document.getElementById('inputResellerName').value;
+            const category = document.getElementById('inputCategory').value;
+            const qty = parseInt(document.getElementById('inputQty').value);
+            const dateStr = new Date().toISOString().split('T')[0];
+
+            let detail = '';
+            let unitPrice = 0;
+
+            if (category === 'voucher') {
+                unitPrice = parseInt(document.getElementById('inputVoucherVal').value);
+                detail = `Voucher Rp ${unitPrice.toLocaleString('id-ID')}`;
+            } else {
+                const hp = document.getElementById('inputHpCount').value;
+                unitPrice = parseInt(document.getElementById('inputHpPrice').value);
+                detail = `Paket ${hp} (Rp ${unitPrice.toLocaleString('id-ID')})`;
+            }
+
+            transactions.push({
+                id: Date.now(),
+                date: dateStr,
+                reseller: reseller,
+                category: category,
+                detail: detail,
+                qty: qty,
+                total: unitPrice * qty
+            });
+
+            renderTable();
+            alert('Data transaksi berhasil ditambahkan!');
+            document.getElementById('voucherForm').reset();
         });
 
-        editUserForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const target = selectTargetUser.value;
-            const newName = inputUsername.value;
-
-            if (target === 'superadmin') {
-                currentUsername.textContent = newName;
-                alert(`Berhasil! Username & Password Superadmin telah diperbarui menjadi "${newName}".`);
-            } else {
-                alert(`Berhasil! Data akun ${selectTargetUser.options[selectTargetUser.selectedIndex].text} diperbarui tanpa menghapus data.`);
+        function deleteTx(index) {
+            if (confirm('Hapus data transaksi ini?')) {
+                transactions.splice(index, 1);
+                renderTable();
             }
-            document.getElementById('inputPassword').value = '';
+        }
+
+        function clearAllData() {
+            if (confirm('Apakah Anda yakin ingin mengosongkan semua rekapan data?')) {
+                transactions = [];
+                renderTable();
+            }
+        }
+
+        // --- CHART.JS GRAPH ---
+        function renderChart() {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            if (salesChartInstance) salesChartInstance.destroy();
+
+            const categories = ['Voucher 2k-6k', 'Voucher 25k', 'Paket 1-2 HP', 'Paket 3-5 HP'];
+            const dataCounts = [15, 8, 12, 5]; // Sample dynamic values
+
+            salesChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        label: 'Volume Penjualan (Unit)',
+                        data: dataCounts,
+                        backgroundColor: ['#6366f1', '#818cf8', '#10b981', '#f59e0b'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // --- EXPORT & IMPORT EXCEL ---
+        function exportToExcel() {
+            const ws = XLSX.utils.json_to_sheet(transactions);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Rekap Penjualan");
+            XLSX.writeFile(wb, "Rekap_Rinnet_Pulse.xlsx");
+        }
+
+        function importFromExcel(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const data = new Uint8Array(event.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const json = XLSX.utils.sheet_to_json(worksheet);
+
+                if (json.length > 0) {
+                    transactions = json;
+                    renderTable();
+                    alert('Data Excel berhasil diimpor!');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // --- INIT DASHBOARD ---
+        function initDashboard() {
+            renderTable();
+            renderChart();
+        }
+
+        // --- SUPERADMIN EDIT USER FORM ---
+        document.getElementById('editUserForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newName = document.getElementById('inputUsername').value;
+            document.getElementById('displayUsername').textContent = newName;
+            alert(`Berhasil memperbarui data user menjadi: ${newName}`);
         });
     </script>
 </body>
