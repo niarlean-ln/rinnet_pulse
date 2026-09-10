@@ -28,7 +28,7 @@
                     <i class="fa-solid fa-bolt-lightning text-3xl"></i>
                 </div>
                 <h1 class="text-2xl font-bold text-slate-900">Rinnet<span class="text-amber-500">Pulse</span></h1>
-                <p class="text-xs text-slate-500 mt-1">Sistem Manajemen Voucher, Paket & Reseller</p>
+                <p class="text-xs text-slate-500 mt-1">Sistem Manajemen Voucher & Stok Reseller</p>
             </div>
 
             <form id="loginForm" class="space-y-4">
@@ -41,24 +41,21 @@
                     <input type="password" id="loginPass" value="admin123" required class="w-full text-sm border border-slate-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Akses Sebagai Role</label>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Login Sebagai Role</label>
                     <select id="loginRole" class="w-full text-sm border border-slate-300 rounded-lg p-3 bg-slate-50 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                        <option value="superadmin">Superadmin (Akses Penuh)</option>
-                        <option value="admin">Admin Internal (Kelola Data & Voucher)</option>
-                        <option value="reseller">Reseller (Input Penjualan & Saldo)</option>
+                        <option value="superadmin">Superadmin (Akses Penuh + User Manager)</option>
+                        <option value="admin">Admin / Karyawan Internal (Kelola Stok & Voucher)</option>
+                        <option value="reseller">Reseller (Laporan Penjualan Voucher/Paket)</option>
                     </select>
                 </div>
                 <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm py-3 rounded-lg shadow-md transition">
                     <i class="fa-solid fa-right-to-bracket mr-2"></i> Masuk Aplikasi
                 </button>
             </form>
-            <div class="mt-4 text-center">
-                <p class="text-[11px] text-slate-400">Sesi Login Aman • Terdeteksi Otomatis Perangkat HP / PC</p>
-            </div>
         </div>
     </div>
 
-    <!-- ================= 2. DASHBOARD / UTAMA ================= -->
+    <!-- ================= 2. DASHBOARD / APLIKASI UTAMA ================= -->
     <div id="appContainer" class="hidden min-h-screen flex flex-col">
         
         <!-- Header / Navbar -->
@@ -76,7 +73,7 @@
                     </div>
                 </div>
 
-                <!-- Live Date Time & Profile -->
+                <!-- Live Clock & Profile -->
                 <div class="flex items-center gap-4">
                     <div class="hidden lg:block text-right text-xs border-r border-indigo-700 pr-4">
                         <p id="liveClock" class="font-bold text-amber-300 text-sm">00:00:00 WIB</p>
@@ -85,7 +82,7 @@
                     <div class="text-right text-xs">
                         <span id="roleBadge" class="bg-emerald-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">Superadmin</span>
                         <p class="font-semibold text-slate-100 mt-0.5" id="displayUsername">LDhito</p>
-                        <p class="text-slate-300 text-[10px]" id="deviceInfo">HP Android (Aktif)</p>
+                        <p class="text-slate-300 text-[10px]" id="deviceInfo">Laptop / PC (Aktif)</p>
                     </div>
                     <button id="logoutBtn" title="Keluar" class="bg-rose-600 hover:bg-rose-700 text-white p-2 rounded-lg text-xs transition">
                         <i class="fa-solid fa-power-off"></i>
@@ -94,12 +91,12 @@
             </div>
         </header>
 
-        <!-- Sidebar Overlay (Mobile Fix Stuck) -->
+        <!-- Sidebar Overlay (Fix Mobile Stuck) -->
         <div id="sidebarOverlay" class="fixed inset-0 sidebar-overlay z-40 hidden opacity-0"></div>
 
         <!-- Layout Body -->
         <div class="flex flex-1">
-            <!-- Sidebar -->
+            <!-- Sidebar Navigation -->
             <aside id="sidebar" class="fixed md:static inset-y-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between p-4 md:hidden border-b border-slate-800">
@@ -113,47 +110,39 @@
                         <button onclick="switchTab('dashboardPage')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-indigo-600 text-white font-medium text-left">
                             <i class="fa-solid fa-chart-line w-5"></i> Dashboard
                         </button>
-                        <button onclick="switchTab('resellerPage')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition text-left">
-                            <i class="fa-solid fa-users w-5"></i> Data Reseller & Voucher
+                        <button onclick="switchTab('adminInputPage')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition text-left">
+                            <i class="fa-solid fa-boxes-stacked w-5"></i> Input Stok & Admin
                         </button>
-                        <button onclick="switchTab('inputResellerPage')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition text-left">
-                            <i class="fa-solid fa-cart-plus w-5"></i> Input Khusus Reseller
+                        <button onclick="switchTab('resellerInputPage')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition text-left">
+                            <i class="fa-solid fa-basket-shopping w-5"></i> Input Khusus Reseller
                         </button>
-                        <button onclick="switchTab('kelolaUserPage')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition text-left">
-                            <i class="fa-solid fa-user-gear w-5"></i> Kelola User (Superadmin)
+                        <button onclick="switchTab('userMgmtPage')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition text-left">
+                            <i class="fa-solid fa-users-gear w-5"></i> Manajemen User
+                        </button>
+                        <button onclick="switchTab('backupArchivePage')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition text-left">
+                            <i class="fa-solid fa-box-archive w-5"></i> Archive / Backup Data
                         </button>
                     </nav>
                 </div>
 
                 <div class="p-4 border-t border-slate-800 text-xs text-slate-400">
-                    <p class="font-medium text-slate-300"><i class="fa-solid fa-mobile-screen mr-1"></i> Perangkat Terhubung:</p>
-                    <p id="sessionDeviceText">Sesi login terverifikasi</p>
+                    <p class="font-medium text-slate-300"><i class="fa-solid fa-database mr-1"></i> Batas Data Aktif:</p>
+                    <div class="w-full bg-slate-800 rounded-full h-2 mt-1.5 overflow-hidden">
+                        <div id="dataProgressBar" class="bg-indigo-500 h-2 rounded-full" style="width: 10%"></div>
+                    </div>
+                    <p class="mt-1 text-[10px] text-slate-400" id="dataLimitStatus">0 / 50 Data Terpakai</p>
                 </div>
             </aside>
 
             <!-- Main Content Area -->
             <main class="flex-1 p-4 md:p-6 bg-slate-100 overflow-y-auto">
 
-                <!-- Alert Notifikasi Sesi Aktif -->
-                <div id="loginAlert" class="mb-6 bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg shadow-sm flex items-start justify-between">
-                    <div class="flex items-start gap-3">
-                        <i class="fa-solid fa-shield-cat text-amber-500 text-xl mt-0.5"></i>
-                        <div>
-                            <h4 class="font-bold text-amber-800 text-sm">Notifikasi Sesi Login</h4>
-                            <p class="text-xs text-amber-700 mt-0.5" id="alertDetail">Login berhasil. Sesi terhubung aman dari perangkat HP/PC Anda.</p>
-                        </div>
-                    </div>
-                    <button onclick="document.getElementById('loginAlert').remove()" class="text-amber-500 hover:text-amber-700">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-
-                <!-- SECTION 1: DASHBOARD (STATISTIK & GRAFIK) -->
+                <!-- SECTION 1: DASHBOARD -->
                 <section id="dashboardPage" class="page-section active space-y-6">
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div>
                             <h2 class="text-xl font-bold text-slate-900">Dashboard Ringkasan</h2>
-                            <p class="text-xs text-slate-500">Laporan realtime penjualan voucher & paket bulanan reseller.</p>
+                            <p class="text-xs text-slate-500">Statistik realtime stok voucher, omzet, dan sisa produk.</p>
                         </div>
                         <div class="flex gap-2">
                             <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1.5 shadow-sm">
@@ -169,27 +158,27 @@
                     <!-- Cards Stats -->
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                            <p class="text-xs font-medium text-slate-500">Total Transaksi</p>
-                            <h3 class="text-xl font-bold text-slate-800 mt-1" id="statTotalTx">128 Trx</h3>
+                            <p class="text-xs font-medium text-slate-500">Voucher Masuk (Stok)</p>
+                            <h3 class="text-xl font-bold text-slate-800 mt-1" id="statStokMasuk">0 Pcs</h3>
                         </div>
                         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                            <p class="text-xs font-medium text-slate-500">Omzet Voucher</p>
-                            <h3 class="text-xl font-bold text-indigo-600 mt-1" id="statOmzetVoucher">Rp 450.000</h3>
+                            <p class="text-xs font-medium text-slate-500">Voucher Terjual</p>
+                            <h3 class="text-xl font-bold text-indigo-600 mt-1" id="statTerjual">0 Pcs</h3>
                         </div>
                         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                            <p class="text-xs font-medium text-slate-500">Omzet Paketan HP</p>
-                            <h3 class="text-xl font-bold text-emerald-600 mt-1" id="statOmzetHP">Rp 1.250.000</h3>
+                            <p class="text-xs font-medium text-slate-500">Voucher Error / Corrupt</p>
+                            <h3 class="text-xl font-bold text-rose-600 mt-1" id="statError">0 Pcs</h3>
                         </div>
                         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                            <p class="text-xs font-medium text-slate-500">Total Reseller Aktif</p>
-                            <h3 class="text-xl font-bold text-amber-600 mt-1" id="statResellerCount">12 Orang</h3>
+                            <p class="text-xs font-medium text-slate-500">Sisa Stok Aktif</p>
+                            <h3 class="text-xl font-bold text-emerald-600 mt-1" id="statSisaStok">0 Pcs</h3>
                         </div>
                     </div>
 
-                    <!-- Grafik Laporan Realtime -->
+                    <!-- Grafik -->
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
                         <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
-                            <i class="fa-solid fa-chart-column text-indigo-600"></i> Laporan Grafik Penjualan
+                            <i class="fa-solid fa-chart-column text-indigo-600"></i> Grafik Pergerakan Stok & Penjualan
                         </h3>
                         <div class="h-64">
                             <canvas id="salesChart"></canvas>
@@ -197,99 +186,83 @@
                     </div>
                 </section>
 
-                <!-- SECTION 2: INPUT DATA TIM INTERNAL & RESELLER -->
-                <section id="resellerPage" class="page-section space-y-6">
+                <!-- SECTION 2: INPUT KARYAWAN / ADMIN (STOK & DATA RESELLER) -->
+                <section id="adminInputPage" class="page-section space-y-6">
                     <div>
-                        <h2 class="text-xl font-bold text-slate-900">Kelola Data Tim Internal & Voucher Reseller</h2>
-                        <p class="text-xs text-slate-500">Input voucher harian/mingguan dan paket bulanan (1-5 HP range Rp 50.000 s/d Rp 200.000).</p>
+                        <h2 class="text-xl font-bold text-slate-900">Input Data Tim Admin / Karyawan</h2>
+                        <p class="text-xs text-slate-500">Pencatatan voucher masuk, terjual, error, serta sisa stok reseller.</p>
                     </div>
 
                     <div class="grid lg:grid-cols-3 gap-6">
-                        <!-- Form Input Tim Internal -->
+                        <!-- Form Input Karyawan -->
                         <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
                             <h3 class="text-sm font-bold text-slate-800 border-b pb-2 flex items-center gap-2">
-                                <i class="fa-solid fa-plus-circle text-indigo-600"></i> Form Input Data Baru
+                                <i class="fa-solid fa-pen-to-square text-indigo-600"></i> Form Stok Admin
                             </h3>
-                            <form id="voucherForm" class="space-y-3">
+                            <form id="adminStokForm" class="space-y-3">
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Reseller / ID</label>
-                                    <input type="text" id="inputResellerName" placeholder="Contoh: Budi Cell" required class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Kategori Produk</label>
-                                    <select id="inputCategory" onchange="togglePackageOptions()" class="w-full text-xs border border-slate-300 rounded-lg p-2.5 bg-slate-50 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
-                                        <option value="voucher">Voucher Harian / Mingguan</option>
-                                        <option value="bulanan">Paket Bulanan HP (1-5 HP)</option>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Reseller Target</label>
+                                    <select id="adminResellerSelect" class="w-full text-xs border border-slate-300 rounded-lg p-2.5 bg-slate-50 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                                        <!-- Dynamic Options dari User Reseller -->
                                     </select>
                                 </div>
-
-                                <!-- Opsi Voucher -->
-                                <div id="voucherOptions">
-                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Pilihan Nominal Voucher</label>
-                                    <select id="inputVoucherVal" class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
-                                        <option value="2000">Voucher Rp 2.000</option>
-                                        <option value="3000">Voucher Rp 3.000</option>
-                                        <option value="4000">Voucher Rp 4.000</option>
-                                        <option value="5000">Voucher Rp 5.000</option>
-                                        <option value="6000">Voucher Rp 6.000</option>
-                                        <option value="25000">Voucher Mingguan Rp 25.000</option>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Tipe Produk / Nominal</label>
+                                    <select id="adminProductType" class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                                        <option value="Voucher 2000">Voucher 2000</option>
+                                        <option value="Voucher 3000">Voucher 3000</option>
+                                        <option value="Voucher 4000">Voucher 4000</option>
+                                        <option value="Voucher 5000">Voucher 5000</option>
+                                        <option value="Voucher 6000">Voucher 6000</option>
+                                        <option value="Voucher Mingguan 25000">Voucher Mingguan 25000</option>
+                                        <option value="Paket Bulanan (1 HP)">Paket Bulanan (1 HP)</option>
+                                        <option value="Paket Bulanan (2 HP)">Paket Bulanan (2 HP)</option>
+                                        <option value="Paket Bulanan (3 HP)">Paket Bulanan (3 HP)</option>
+                                        <option value="Paket Bulanan (4 HP)">Paket Bulanan (4 HP)</option>
+                                        <option value="Paket Bulanan (5 HP)">Paket Bulanan (5 HP)</option>
                                     </select>
                                 </div>
-
-                                <!-- Opsi Paketan HP (Hidden By Default) -->
-                                <div id="hpOptions" class="hidden space-y-3">
+                                <div class="grid grid-cols-2 gap-2">
                                     <div>
-                                        <label class="block text-xs font-semibold text-slate-600 mb-1">Kapasitas HP (Bulanan)</label>
-                                        <select id="inputHpCount" class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
-                                            <option value="1 HP">1 HP</option>
-                                            <option value="2 HP">2 HP</option>
-                                            <option value="3 HP">3 HP</option>
-                                            <option value="4 HP">4 HP</option>
-                                            <option value="5 HP">5 HP</option>
-                                        </select>
+                                        <label class="block text-xs font-semibold text-slate-600 mb-1">Stok Masuk</label>
+                                        <input type="number" id="inputStokMasuk" value="0" min="0" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
                                     </div>
                                     <div>
-                                        <label class="block text-xs font-semibold text-slate-600 mb-1">Harga Paketan (Rp 50.000 - Rp 200.000)</label>
-                                        <input type="number" id="inputHpPrice" min="50000" max="200000" value="50000" step="5000" class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                                        <label class="block text-xs font-semibold text-slate-600 mb-1">Terjual</label>
+                                        <input type="number" id="inputStokTerjual" value="0" min="0" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
                                     </div>
                                 </div>
-
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Jumlah / Qty</label>
-                                    <input type="number" id="inputQty" value="1" min="1" class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Error / Rusak</label>
+                                    <input type="number" id="inputStokError" value="0" min="0" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
                                 </div>
-
                                 <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs py-2.5 rounded-lg shadow-sm transition">
-                                    <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Data Transaksi
+                                    <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Stok Reseller
                                 </button>
                             </form>
                         </div>
 
-                        <!-- Tabel Rekapan Data -->
+                        <!-- Tabel Stok Admin -->
                         <div class="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
-                            <div class="flex items-center justify-between border-b pb-2">
-                                <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                                    <i class="fa-solid fa-list-check text-indigo-600"></i> Rekapan Data Penjualan
-                                </h3>
-                                <button onclick="clearAllData()" class="text-rose-600 hover:text-rose-800 text-xs font-medium">
-                                    <i class="fa-solid fa-trash-can mr-1"></i> Reset Data
-                                </button>
-                            </div>
+                            <h3 class="text-sm font-bold text-slate-800 border-b pb-2 flex items-center justify-between">
+                                <span><i class="fa-solid fa-table-list text-indigo-600 mr-1"></i> Monitoring Stok Reseller</span>
+                                <span class="text-[11px] font-normal text-slate-500">Sisa Stok = (Masuk - Terjual - Error)</span>
+                            </h3>
 
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left text-xs border-collapse">
                                     <thead>
                                         <tr class="bg-slate-100 text-slate-600 font-bold border-b">
-                                            <th class="p-2.5">Tanggal</th>
                                             <th class="p-2.5">Reseller</th>
-                                            <th class="p-2.5">Kategori</th>
-                                            <th class="p-2.5">Detail Produk</th>
-                                            <th class="p-2.5">Qty</th>
-                                            <th class="p-2.5">Total Harga</th>
+                                            <th class="p-2.5">Produk</th>
+                                            <th class="p-2.5 text-center">Masuk</th>
+                                            <th class="p-2.5 text-center">Terjual</th>
+                                            <th class="p-2.5 text-center">Error</th>
+                                            <th class="p-2.5 text-center">Sisa Stok</th>
                                             <th class="p-2.5 text-center">Aksi</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="transactionTableBody" class="divide-y divide-slate-100">
+                                    <tbody id="adminStokTableBody" class="divide-y divide-slate-100">
                                         <!-- Dynamic Data -->
                                     </tbody>
                                 </table>
@@ -299,81 +272,152 @@
                 </section>
 
                 <!-- SECTION 3: INPUT KHUSUS RESELLER -->
-                <section id="inputResellerPage" class="page-section space-y-6">
+                <section id="resellerInputPage" class="page-section space-y-6">
                     <div>
                         <h2 class="text-xl font-bold text-slate-900">Portal Input Khusus Reseller</h2>
-                        <p class="text-xs text-slate-500">Halaman cepat untuk reseller melaporkan penjualan atau klaim stok voucher.</p>
+                        <p class="text-xs text-slate-500">Form penjualan langsung khusus reseller dengan sistem real-time datetime.</p>
                     </div>
 
                     <div class="max-w-xl bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-                        <form id="resellerSelfForm" class="space-y-4">
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Toko / ID Reseller</label>
-                                <input type="text" id="resellerSelfName" value="Reseller_Budi" readonly class="w-full text-xs bg-slate-100 border border-slate-300 rounded-lg p-2.5 font-bold text-slate-700">
+                        <form id="resellerDirectForm" class="space-y-4">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal, Bulan, Tahun</label>
+                                    <input type="date" id="resellerInputDate" required class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Jam Transaksi</label>
+                                    <input type="time" id="resellerInputTime" required class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                                </div>
                             </div>
+
                             <div>
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">Jenis Voucher Yang Dijual</label>
-                                <select id="resellerSelfVoucher" class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
-                                    <option value="2000">Voucher 2000</option>
-                                    <option value="3000">Voucher 3000</option>
-                                    <option value="4000">Voucher 4000</option>
-                                    <option value="5000">Voucher 5000</option>
-                                    <option value="6000">Voucher 6000</option>
-                                    <option value="25000">Voucher Mingguan 25000</option>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Jenis Voucher / Paketan</label>
+                                <select id="resellerVoucherType" onchange="handleResellerPriceChange()" class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                                    <optgroup label="Voucher Harian & Mingguan">
+                                        <option value="2000" data-type="voucher">Voucher Rp 2.000</option>
+                                        <option value="3000" data-type="voucher">Voucher Rp 3.000</option>
+                                        <option value="4000" data-type="voucher">Voucher Rp 4.000</option>
+                                        <option value="5000" data-type="voucher">Voucher Rp 5.000</option>
+                                        <option value="6000" data-type="voucher">Voucher Rp 6.000</option>
+                                        <option value="25000" data-type="voucher">Voucher Mingguan Rp 25.000</option>
+                                    </optgroup>
+                                    <optgroup label="Paket Bulanan (Range Rp 50.000 - Rp 200.000)">
+                                        <option value="50000" data-type="hp" data-hp="1 HP">Bulanan 1 HP (Rp 50.000)</option>
+                                        <option value="80000" data-type="hp" data-hp="2 HP">Bulanan 2 HP (Rp 80.000)</option>
+                                        <option value="120000" data-type="hp" data-hp="3 HP">Bulanan 3 HP (Rp 120.000)</option>
+                                        <option value="150000" data-type="hp" data-hp="4 HP">Bulanan 4 HP (Rp 150.000)</option>
+                                        <option value="200000" data-type="hp" data-hp="5 HP">Bulanan 5 HP (Rp 200.000)</option>
+                                    </optgroup>
                                 </select>
                             </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">Jumlah Lembar Terjual</label>
-                                <input type="number" id="resellerSelfQty" value="5" min="1" class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Jumlah Terjual (Qty)</label>
+                                    <input type="number" id="resellerQty" value="1" min="1" class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Harga Custom (Rp 50k - 200k)</label>
+                                    <input type="number" id="resellerCustomPrice" value="2000" min="2000" max="200000" step="1000" class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                                </div>
                             </div>
+
                             <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-3 rounded-lg shadow-sm transition">
-                                <i class="fa-solid fa-paper-plane mr-1"></i> Kirim Laporan Penjualan
+                                <i class="fa-solid fa-paper-plane mr-1"></i> Lapor Penjualan Reseller
                             </button>
                         </form>
                     </div>
                 </section>
 
-                <!-- SECTION 4: KELOLA USER (SUPERADMIN) -->
-                <section id="kelolaUserPage" class="page-section space-y-6">
+                <!-- SECTION 4: MANAJEMEN USER (TAMBAH, EDIT, HAPUS USER & ROLE) -->
+                <section id="userMgmtPage" class="page-section space-y-6">
                     <div>
-                        <h2 class="text-xl font-bold text-slate-900">Kelola Akun & User (Superadmin)</h2>
-                        <p class="text-xs text-slate-500">Edit username atau password akun sendiri maupun user/reseller tanpa hapus data.</p>
+                        <h2 class="text-xl font-bold text-slate-900">Manajemen User & Hak Akses</h2>
+                        <p class="text-xs text-slate-500">Kelola akun Superadmin, Admin Internal, dan Reseller secara mandiri tanpa hapus data.</p>
                     </div>
 
-                    <div class="grid md:grid-cols-2 gap-6">
-                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                            <form id="editUserForm" class="space-y-4">
+                    <div class="grid lg:grid-cols-3 gap-6">
+                        <!-- Form Tambah / Edit User -->
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                            <h3 class="text-sm font-bold text-slate-800 border-b pb-2 flex items-center justify-between" id="userFormTitle">
+                                <span><i class="fa-solid fa-user-plus text-indigo-600 mr-1"></i> Tambah User Baru</span>
+                                <button onclick="resetUserForm()" class="text-[10px] text-slate-400 hover:text-slate-600">Batal</button>
+                            </h3>
+                            <form id="userMgmtForm" class="space-y-3">
+                                <input type="hidden" id="editUserId" value="">
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Akun yang Diedit</label>
-                                    <select id="selectTargetUser" class="w-full text-xs border border-slate-300 rounded-lg p-2.5 bg-slate-50 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
-                                        <option value="superadmin">Superadmin (Akun Utama)</option>
-                                        <option value="admin_1">Admin Internal 1</option>
-                                        <option value="reseller_1">Reseller 1 (Budi Cell)</option>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Username / ID Account</label>
+                                    <input type="text" id="userMgmtName" required class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Password</label>
+                                    <input type="password" id="userMgmtPass" required class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Role / Hak Akses</label>
+                                    <select id="userMgmtRole" class="w-full text-xs border border-slate-300 rounded-lg p-2.5 bg-slate-50 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                                        <option value="superadmin">Superadmin</option>
+                                        <option value="admin">Admin / Karyawan</option>
+                                        <option value="reseller">Reseller</option>
                                     </select>
                                 </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Username Baru</label>
-                                    <input type="text" id="inputUsername" value="LDhito" required class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Password Baru</label>
-                                    <input type="password" id="inputPassword" placeholder="Masukkan password baru" required class="w-full text-xs border border-slate-300 rounded-lg p-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none">
-                                </div>
                                 <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs py-2.5 rounded-lg shadow-sm transition">
-                                    <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan Perubahan Akun
+                                    <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan User
                                 </button>
                             </form>
                         </div>
 
-                        <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
-                            <h3 class="text-xs font-bold text-slate-800 flex items-center gap-2">
-                                <i class="fa-solid fa-laptop-code text-indigo-600"></i> Status Sesi User Aktif
-                            </h3>
-                            <div class="bg-white p-3 rounded-lg border text-xs space-y-1">
-                                <p class="font-bold text-slate-800" id="activeUserLabel">LDhito (Superadmin)</p>
-                                <p class="text-slate-500 text-[11px]" id="activeDeviceLabel">Laptop / PC • Chrome Browser</p>
-                                <span class="inline-block bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold mt-1">Terhubung & Safe</span>
+                        <!-- Tabel User -->
+                        <div class="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                            <h3 class="text-sm font-bold text-slate-800 border-b pb-2">Daftar Akun Pengguna</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs border-collapse">
+                                    <thead>
+                                        <tr class="bg-slate-100 text-slate-600 font-bold border-b">
+                                            <th class="p-2.5">Username</th>
+                                            <th class="p-2.5">Role</th>
+                                            <th class="p-2.5">Password (Encrypted)</th>
+                                            <th class="p-2.5 text-center">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="userTableBody" class="divide-y divide-slate-100">
+                                        <!-- Dynamic Users -->
+                                    </tbody>
+                                </table>
                             </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 5: BACKUP & ARCHIVE DATA AUTOMATION -->
+                <section id="backupArchivePage" class="page-section space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-900">Arsip & Backup Data Otomatis</h2>
+                            <p class="text-xs text-slate-500">Data lama yang dipindahkan secara otomatis ketika kuota transaksi aktif penuh.</p>
+                        </div>
+                        <button onclick="downloadArchiveData()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-download"></i> Unduh Database Backup
+                        </button>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-100 text-slate-600 font-bold border-b">
+                                        <th class="p-2.5">Waktu Backup</th>
+                                        <th class="p-2.5">Penginput</th>
+                                        <th class="p-2.5">Detail Produk</th>
+                                        <th class="p-2.5">Total Value</th>
+                                        <th class="p-2.5 text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="archiveTableBody" class="divide-y divide-slate-100">
+                                    <!-- Dynamic Archive -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </section>
@@ -385,15 +429,22 @@
     <!-- ================= 3. JAVASCRIPT LOGIC ================= -->
     <script>
         // --- DATA STORE INITIALIZATION ---
-        let transactions = JSON.parse(localStorage.getItem('rinnet_tx')) || [
-            { id: 1, date: '2026-09-10', reseller: 'Budi Cell', category: 'voucher', detail: 'Voucher 5000', qty: 10, total: 50000 },
-            { id: 2, date: '2026-09-10', reseller: 'Siti Pulsa', category: 'bulanan', detail: '3 HP (Rp 120.000)', qty: 1, total: 120000 }
+        const MAX_DATA_LIMIT = 50;
+
+        let users = JSON.parse(localStorage.getItem('rinnet_users')) || [
+            { id: 1, name: 'LDhito', pass: 'admin123', role: 'superadmin' },
+            { id: 2, name: 'Karyawan_Admin', pass: 'karyawan123', role: 'admin' },
+            { id: 3, name: 'Reseller_Budi', pass: 'reseller123', role: 'reseller' }
         ];
+
+        let activeTransactions = JSON.parse(localStorage.getItem('rinnet_active_tx')) || [];
+        let archivedTransactions = JSON.parse(localStorage.getItem('rinnet_archive_tx')) || [];
+        let adminStokData = JSON.parse(localStorage.getItem('rinnet_admin_stok')) || [];
 
         let currentUser = { name: 'LDhito', role: 'superadmin' };
         let salesChartInstance = null;
 
-        // --- REALTIME CLOCK & DATE ---
+        // --- REALTIME CLOCK & DATE INITIALIZER ---
         function updateClock() {
             const now = new Date();
             const timeStr = now.toLocaleTimeString('id-ID') + ' WIB';
@@ -408,33 +459,28 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        // --- DEVICE DETECTION ---
-        function detectDeviceType() {
-            const ua = navigator.userAgent;
-            if (/android/i.test(ua)) return "HP Android";
-            if (/iPhone|iPad|iPod/i.test(ua)) return "iPhone / iOS";
-            return "Laptop / PC";
+        // Set default date & time di Form Reseller
+        function initResellerDateTime() {
+            const now = new Date();
+            document.getElementById('resellerInputDate').value = now.toISOString().split('T')[0];
+            document.getElementById('resellerInputTime').value = now.toTimeString().substring(0, 5);
         }
 
-        // --- LOGIN & ROLE LOGIC ---
+        // --- LOGIN & ROLE SYSTEM ---
         document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const user = document.getElementById('loginUser').value;
+            const username = document.getElementById('loginUser').value;
             const role = document.getElementById('loginRole').value;
-            
-            currentUser.name = user;
-            currentUser.role = role;
 
-            document.getElementById('displayUsername').textContent = user;
+            currentUser = { name: username, role: role };
+
+            document.getElementById('displayUsername').textContent = username;
             document.getElementById('roleBadge').textContent = role.toUpperCase();
             document.getElementById('loginPage').classList.add('hidden');
             document.getElementById('appContainer').classList.remove('hidden');
 
-            const dev = detectDeviceType();
-            document.getElementById('deviceInfo').textContent = `${dev} (Aktif)`;
-            document.getElementById('sessionDeviceText').textContent = `${dev} • Browser Active`;
-
-            initDashboard();
+            initResellerDateTime();
+            renderAll();
         });
 
         document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -442,7 +488,7 @@
             document.getElementById('loginPage').classList.remove('hidden');
         });
 
-        // --- NAVIGATION & SIDEBAR FIX (HP ANTI STUCK) ---
+        // --- NAVIGATION & SIDEBAR MOBILE FIX ---
         const toggleMenuBtn = document.getElementById('toggleMenuBtn');
         const closeMenuBtn = document.getElementById('closeMenuBtn');
         const sidebar = document.getElementById('sidebar');
@@ -471,100 +517,221 @@
             if (pageId === 'dashboardPage') renderChart();
         }
 
-        // --- FORM LOGIC (PACKAGE SELECTION) ---
-        function togglePackageOptions() {
-            const cat = document.getElementById('inputCategory').value;
-            if (cat === 'bulanan') {
-                document.getElementById('voucherOptions').classList.add('hidden');
-                document.getElementById('hpOptions').classList.remove('hidden');
+        // --- AUTOMATION: AUTO BACKUP DATA IF FULL ---
+        function checkAutoBackupLimit() {
+            if (activeTransactions.length >= MAX_DATA_LIMIT) {
+                // Pindahkan data aktif ke archive
+                archivedTransactions = [...archivedTransactions, ...activeTransactions];
+                activeTransactions = [];
+
+                localStorage.setItem('rinnet_archive_tx', JSON.stringify(archivedTransactions));
+                localStorage.setItem('rinnet_active_tx', JSON.stringify(activeTransactions));
+
+                alert('PERHATIAN: Batas Maksimal 50 Data Aktif Telah Tercapai! Seluruh data otomatis di-backup & dipindahkan ke Menu Archive secara aman.');
+            }
+
+            // Update Progress Bar UI
+            const pct = (activeTransactions.length / MAX_DATA_LIMIT) * 100;
+            document.getElementById('dataProgressBar').style.width = `${pct}%`;
+            document.getElementById('dataLimitStatus').textContent = `${activeTransactions.length} / ${MAX_DATA_LIMIT} Data Terpakai`;
+        }
+
+        // --- USER MANAGEMENT LOGIC ---
+        function renderUsers() {
+            const tbody = document.getElementById('userTableBody');
+            const resellerSelect = document.getElementById('adminResellerSelect');
+            tbody.innerHTML = '';
+            resellerSelect.innerHTML = '';
+
+            users.forEach((u) => {
+                // Render Table User
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 border-b border-slate-100';
+                tr.innerHTML = `
+                    <td class="p-2.5 font-bold text-slate-800">${u.name}</td>
+                    <td class="p-2.5"><span class="px-2 py-0.5 text-[10px] font-bold rounded uppercase ${u.role === 'superadmin' ? 'bg-purple-100 text-purple-700' : u.role === 'admin' ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'}">${u.role}</span></td>
+                    <td class="p-2.5 font-mono text-slate-400">••••••••</td>
+                    <td class="p-2.5 text-center space-x-1">
+                        <button onclick="editUser(${u.id})" class="text-indigo-600 hover:text-indigo-800"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deleteUser(${u.id})" class="text-rose-600 hover:text-rose-800"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+
+                // Option Select untuk Admin
+                if (u.role === 'reseller' || u.role === 'admin') {
+                    const opt = document.createElement('option');
+                    opt.value = u.name;
+                    opt.textContent = `${u.name} (${u.role.toUpperCase()})`;
+                    resellerSelect.appendChild(opt);
+                }
+            });
+
+            localStorage.setItem('rinnet_users', JSON.stringify(users));
+        }
+
+        document.getElementById('userMgmtForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const editId = document.getElementById('editUserId').value;
+            const name = document.getElementById('userMgmtName').value;
+            const pass = document.getElementById('userMgmtPass').value;
+            const role = document.getElementById('userMgmtRole').value;
+
+            if (editId) {
+                // Edit mode
+                const idx = users.findIndex(u => u.id == editId);
+                if (idx !== -1) {
+                    users[idx].name = name;
+                    users[idx].pass = pass;
+                    users[idx].role = role;
+                }
             } else {
-                document.getElementById('voucherOptions').classList.remove('hidden');
-                document.getElementById('hpOptions').classList.add('hidden');
+                // Create mode
+                users.push({ id: Date.now(), name, pass, role });
+            }
+
+            resetUserForm();
+            renderUsers();
+            alert('Data user berhasil diperbarui!');
+        });
+
+        function editUser(id) {
+            const u = users.find(x => x.id === id);
+            if (!u) return;
+            document.getElementById('editUserId').value = u.id;
+            document.getElementById('userMgmtName').value = u.name;
+            document.getElementById('userMgmtPass').value = u.pass;
+            document.getElementById('userMgmtRole').value = u.role;
+            document.getElementById('userFormTitle').innerHTML = `<span><i class="fa-solid fa-pen-to-square text-indigo-600 mr-1"></i> Edit User: ${u.name}</span>`;
+        }
+
+        function deleteUser(id) {
+            if (confirm('Hapus user ini?')) {
+                users = users.filter(u => u.id !== id);
+                renderUsers();
             }
         }
 
-        // --- RENDER TABLE & RECAP ---
-        function renderTable() {
-            const tbody = document.getElementById('transactionTableBody');
+        function resetUserForm() {
+            document.getElementById('editUserId').value = '';
+            document.getElementById('userMgmtForm').reset();
+            document.getElementById('userFormTitle').innerHTML = `<span><i class="fa-solid fa-user-plus text-indigo-600 mr-1"></i> Tambah User Baru</span>`;
+        }
+
+        // --- STOK ADMIN / KARYAWAN LOGIC ---
+        document.getElementById('adminStokForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const reseller = document.getElementById('adminResellerSelect').value || 'Reseller General';
+            const product = document.getElementById('adminProductType').value;
+            const masuk = parseInt(document.getElementById('inputStokMasuk').value) || 0;
+            const terjual = parseInt(document.getElementById('inputStokTerjual').value) || 0;
+            const errorVal = parseInt(document.getElementById('inputStokError').value) || 0;
+
+            const existingIdx = adminStokData.findIndex(s => s.reseller === reseller && s.product === product);
+            if (existingIdx !== -1) {
+                adminStokData[existingIdx].masuk += masuk;
+                adminStokData[existingIdx].terjual += terjual;
+                adminStokData[existingIdx].errorVal += errorVal;
+            } else {
+                adminStokData.push({ id: Date.now(), reseller, product, masuk, terjual, errorVal });
+            }
+
+            localStorage.setItem('rinnet_admin_stok', JSON.stringify(adminStokData));
+            renderAdminStokTable();
+            alert('Stok reseller berhasil disimpan!');
+        });
+
+        function renderAdminStokTable() {
+            const tbody = document.getElementById('adminStokTableBody');
             tbody.innerHTML = '';
 
-            let totalVoucher = 0;
-            let totalHP = 0;
+            let totalMasuk = 0, totalTerjual = 0, totalError = 0, totalSisa = 0;
 
-            transactions.forEach((item, index) => {
-                if(item.category === 'voucher') totalVoucher += item.total;
-                else totalHP += item.total;
+            adminStokData.forEach((item, idx) => {
+                const sisa = item.masuk - item.terjual - item.errorVal;
+                totalMasuk += item.masuk;
+                totalTerjual += item.terjual;
+                totalError += item.errorVal;
+                totalSisa += sisa;
 
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 border-b border-slate-100';
                 tr.innerHTML = `
-                    <td class="p-2.5">${item.date}</td>
-                    <td class="p-2.5 font-semibold text-slate-700">${item.reseller}</td>
-                    <td class="p-2.5"><span class="px-2 py-0.5 text-[10px] font-bold rounded ${item.category === 'voucher' ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'}">${item.category.toUpperCase()}</span></td>
-                    <td class="p-2.5">${item.detail}</td>
-                    <td class="p-2.5 font-bold">${item.qty}</td>
-                    <td class="p-2.5 font-bold text-slate-800">Rp ${item.total.toLocaleString('id-ID')}</td>
+                    <td class="p-2.5 font-bold text-slate-700">${item.reseller}</td>
+                    <td class="p-2.5">${item.product}</td>
+                    <td class="p-2.5 text-center font-semibold text-indigo-600">${item.masuk}</td>
+                    <td class="p-2.5 text-center font-semibold text-emerald-600">${item.terjual}</td>
+                    <td class="p-2.5 text-center font-semibold text-rose-600">${item.errorVal}</td>
+                    <td class="p-2.5 text-center font-bold text-slate-800">${sisa}</td>
                     <td class="p-2.5 text-center">
-                        <button onclick="deleteTx(${index})" class="text-rose-500 hover:text-rose-700 text-xs">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
+                        <button onclick="deleteAdminStok(${idx})" class="text-rose-500 hover:text-rose-700"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
 
-            document.getElementById('statTotalTx').textContent = `${transactions.length} Trx`;
-            document.getElementById('statOmzetVoucher').textContent = `Rp ${totalVoucher.toLocaleString('id-ID')}`;
-            document.getElementById('statOmzetHP').textContent = `Rp ${totalHP.toLocaleString('id-ID')}`;
-            localStorage.setItem('rinnet_tx', JSON.stringify(transactions));
+            document.getElementById('statStokMasuk').textContent = `${totalMasuk} Pcs`;
+            document.getElementById('statTerjual').textContent = `${totalTerjual} Pcs`;
+            document.getElementById('statError').textContent = `${totalError} Pcs`;
+            document.getElementById('statSisaStok').textContent = `${totalSisa} Pcs`;
         }
 
-        document.getElementById('voucherForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const reseller = document.getElementById('inputResellerName').value;
-            const category = document.getElementById('inputCategory').value;
-            const qty = parseInt(document.getElementById('inputQty').value);
-            const dateStr = new Date().toISOString().split('T')[0];
-
-            let detail = '';
-            let unitPrice = 0;
-
-            if (category === 'voucher') {
-                unitPrice = parseInt(document.getElementById('inputVoucherVal').value);
-                detail = `Voucher Rp ${unitPrice.toLocaleString('id-ID')}`;
-            } else {
-                const hp = document.getElementById('inputHpCount').value;
-                unitPrice = parseInt(document.getElementById('inputHpPrice').value);
-                detail = `Paket ${hp} (Rp ${unitPrice.toLocaleString('id-ID')})`;
+        function deleteAdminStok(idx) {
+            if (confirm('Hapus rekapan stok ini?')) {
+                adminStokData.splice(idx, 1);
+                localStorage.setItem('rinnet_admin_stok', JSON.stringify(adminStokData));
+                renderAdminStokTable();
             }
+        }
 
-            transactions.push({
+        // --- PORTAL INPUT KHUSUS RESELLER ---
+        function handleResellerPriceChange() {
+            const select = document.getElementById('resellerVoucherType');
+            const selectedOpt = select.options[select.selectedIndex];
+            document.getElementById('resellerCustomPrice').value = selectedOpt.value;
+        }
+
+        document.getElementById('resellerDirectForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const date = document.getElementById('resellerInputDate').value;
+            const time = document.getElementById('resellerInputTime').value;
+            const select = document.getElementById('resellerVoucherType');
+            const selectedOpt = select.options[select.selectedIndex];
+            const qty = parseInt(document.getElementById('resellerQty').value);
+            const price = parseInt(document.getElementById('resellerCustomPrice').value);
+
+            activeTransactions.push({
                 id: Date.now(),
-                date: dateStr,
-                reseller: reseller,
-                category: category,
-                detail: detail,
+                timestamp: `${date} ${time}`,
+                user: currentUser.name,
+                product: selectedOpt.text,
                 qty: qty,
-                total: unitPrice * qty
+                price: price,
+                total: qty * price
             });
 
-            renderTable();
-            alert('Data transaksi berhasil ditambahkan!');
-            document.getElementById('voucherForm').reset();
+            localStorage.setItem('rinnet_active_tx', JSON.stringify(activeTransactions));
+            checkAutoBackupLimit();
+            alert('Penjualan reseller berhasil dilaporkan!');
         });
 
-        function deleteTx(index) {
-            if (confirm('Hapus data transaksi ini?')) {
-                transactions.splice(index, 1);
-                renderTable();
-            }
-        }
+        // --- RENDER ARCHIVE / BACKUP TABLE ---
+        function renderArchiveTable() {
+            const tbody = document.getElementById('archiveTableBody');
+            tbody.innerHTML = '';
 
-        function clearAllData() {
-            if (confirm('Apakah Anda yakin ingin mengosongkan semua rekapan data?')) {
-                transactions = [];
-                renderTable();
-            }
+            archivedTransactions.forEach((item) => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 border-b border-slate-100';
+                tr.innerHTML = `
+                    <td class="p-2.5 font-mono text-slate-500">${item.timestamp}</td>
+                    <td class="p-2.5 font-semibold text-slate-700">${item.user}</td>
+                    <td class="p-2.5">${item.product} (x${item.qty})</td>
+                    <td class="p-2.5 font-bold text-slate-800">Rp ${item.total.toLocaleString('id-ID')}</td>
+                    <td class="p-2.5 text-center"><span class="bg-slate-200 text-slate-700 text-[10px] px-2 py-0.5 rounded font-bold">Archived</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
         // --- CHART.JS GRAPH ---
@@ -572,17 +739,19 @@
             const ctx = document.getElementById('salesChart').getContext('2d');
             if (salesChartInstance) salesChartInstance.destroy();
 
-            const categories = ['Voucher 2k-6k', 'Voucher 25k', 'Paket 1-2 HP', 'Paket 3-5 HP'];
-            const dataCounts = [15, 8, 12, 5]; // Sample dynamic values
-
             salesChartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: categories,
+                    labels: ['Masuk', 'Terjual', 'Error', 'Sisa Stok'],
                     datasets: [{
-                        label: 'Volume Penjualan (Unit)',
-                        data: dataCounts,
-                        backgroundColor: ['#6366f1', '#818cf8', '#10b981', '#f59e0b'],
+                        label: 'Total Voucher',
+                        data: [
+                            parseInt(document.getElementById('statStokMasuk').textContent),
+                            parseInt(document.getElementById('statTerjual').textContent),
+                            parseInt(document.getElementById('statError').textContent),
+                            parseInt(document.getElementById('statSisaStok').textContent)
+                        ],
+                        backgroundColor: ['#6366f1', '#10b981', '#f43f5e', '#f59e0b'],
                         borderRadius: 8
                     }]
                 },
@@ -594,12 +763,19 @@
             });
         }
 
-        // --- EXPORT & IMPORT EXCEL ---
+        // --- EXPORT & IMPORT ---
         function exportToExcel() {
-            const ws = XLSX.utils.json_to_sheet(transactions);
+            const ws = XLSX.utils.json_to_sheet(activeTransactions.concat(archivedTransactions));
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Rekap Penjualan");
-            XLSX.writeFile(wb, "Rekap_Rinnet_Pulse.xlsx");
+            XLSX.writeFile(wb, "Rekap_Data_Rinnet_Pulse.xlsx");
+        }
+
+        function downloadArchiveData() {
+            const ws = XLSX.utils.json_to_sheet(archivedTransactions);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Archive Database");
+            XLSX.writeFile(wb, "Backup_Archive_Rinnet_Pulse.xlsx");
         }
 
         function importFromExcel(e) {
@@ -615,27 +791,23 @@
                 const json = XLSX.utils.sheet_to_json(worksheet);
 
                 if (json.length > 0) {
-                    transactions = json;
-                    renderTable();
+                    activeTransactions = json;
+                    localStorage.setItem('rinnet_active_tx', JSON.stringify(activeTransactions));
+                    renderAll();
                     alert('Data Excel berhasil diimpor!');
                 }
             };
             reader.readAsArrayBuffer(file);
         }
 
-        // --- INIT DASHBOARD ---
-        function initDashboard() {
-            renderTable();
+        // --- RENDER ALL UI ---
+        function renderAll() {
+            renderUsers();
+            renderAdminStokTable();
+            renderArchiveTable();
+            checkAutoBackupLimit();
             renderChart();
         }
-
-        // --- SUPERADMIN EDIT USER FORM ---
-        document.getElementById('editUserForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const newName = document.getElementById('inputUsername').value;
-            document.getElementById('displayUsername').textContent = newName;
-            alert(`Berhasil memperbarui data user menjadi: ${newName}`);
-        });
     </script>
 </body>
 </html>
